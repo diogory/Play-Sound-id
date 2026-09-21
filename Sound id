@@ -1,0 +1,462 @@
+local Players=game:GetService("Players")
+local SoundService=game:GetService("SoundService")
+local UIS=game:GetService("UserInputService")
+local TweenService=game:GetService("TweenService")
+
+local player=Players.LocalPlayer
+local playerGui=player:WaitForChild("PlayerGui")
+
+local oldGui=playerGui:FindFirstChild("D_SoundPlayer")
+if oldGui then
+	oldGui:Destroy()
+end
+
+local oldSound=SoundService:FindFirstChild("D_LocalMusic")
+if oldSound then
+	oldSound:Stop()
+	oldSound:Destroy()
+end
+
+local sound=Instance.new("Sound")
+sound.Name="D_LocalMusic"
+sound.Volume=1
+sound.Looped=false
+sound.Parent=SoundService
+
+local gui=Instance.new("ScreenGui")
+gui.Name="D_SoundPlayer"
+gui.ResetOnSpawn=false
+gui.IgnoreGuiInset=true
+gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+gui.DisplayOrder=999
+gui.Parent=playerGui
+
+local logo=Instance.new("TextButton")
+logo.Size=UDim2.fromOffset(32,32)
+logo.Position=UDim2.new(.5,-16,.5,-16)
+logo.BackgroundColor3=Color3.fromRGB(0,0,0)
+logo.BorderSizePixel=0
+logo.Text="D"
+logo.TextColor3=Color3.new(1,1,1)
+logo.TextSize=17
+logo.Font=Enum.Font.GothamBold
+logo.AutoButtonColor=false
+logo.ZIndex=100
+logo.Parent=gui
+
+local logoCorner=Instance.new("UICorner")
+logoCorner.CornerRadius=UDim.new(0,7)
+logoCorner.Parent=logo
+
+local logoStroke=Instance.new("UIStroke")
+logoStroke.Color=Color3.fromRGB(60,60,60)
+logoStroke.Thickness=1
+logoStroke.Parent=logo
+
+local menu=Instance.new("Frame")
+menu.Size=UDim2.fromOffset(320,315)
+menu.Position=UDim2.new(.5,-160,.5,-157)
+menu.BackgroundColor3=Color3.fromRGB(12,12,12)
+menu.BorderSizePixel=0
+menu.Visible=false
+menu.ZIndex=90
+menu.Parent=gui
+
+local menuCorner=Instance.new("UICorner")
+menuCorner.CornerRadius=UDim.new(0,10)
+menuCorner.Parent=menu
+
+local menuStroke=Instance.new("UIStroke")
+menuStroke.Color=Color3.fromRGB(55,55,55)
+menuStroke.Thickness=1
+menuStroke.Parent=menu
+
+local titleBar=Instance.new("Frame")
+titleBar.Size=UDim2.new(1,-45,0,40)
+titleBar.Position=UDim2.fromOffset(8,4)
+titleBar.BackgroundTransparency=1
+titleBar.ZIndex=91
+titleBar.Parent=menu
+
+local title=Instance.new("TextLabel")
+title.Size=UDim2.new(1,0,1,0)
+title.BackgroundTransparency=1
+title.Text="D SOUND PLAYER"
+title.TextColor3=Color3.new(1,1,1)
+title.TextSize=15
+title.Font=Enum.Font.GothamBold
+title.TextXAlignment=Enum.TextXAlignment.Left
+title.ZIndex=92
+title.Parent=titleBar
+
+local close=Instance.new("TextButton")
+close.Size=UDim2.fromOffset(30,30)
+close.Position=UDim2.new(1,-38,0,9)
+close.BackgroundColor3=Color3.fromRGB(25,25,25)
+close.BorderSizePixel=0
+close.Text="×"
+close.TextColor3=Color3.new(1,1,1)
+close.TextSize=20
+close.Font=Enum.Font.GothamBold
+close.AutoButtonColor=false
+close.ZIndex=95
+close.Parent=menu
+
+local closeCorner=Instance.new("UICorner")
+closeCorner.CornerRadius=UDim.new(0,6)
+closeCorner.Parent=close
+
+local idBox=Instance.new("TextBox")
+idBox.Size=UDim2.new(1,-24,0,42)
+idBox.Position=UDim2.fromOffset(12,50)
+idBox.BackgroundColor3=Color3.fromRGB(22,22,22)
+idBox.BorderSizePixel=0
+idBox.TextColor3=Color3.new(1,1,1)
+idBox.PlaceholderColor3=Color3.fromRGB(120,120,120)
+idBox.PlaceholderText="Nhập Sound ID..."
+idBox.Text=""
+idBox.ClearTextOnFocus=false
+idBox.TextSize=13
+idBox.Font=Enum.Font.Gotham
+idBox.TextXAlignment=Enum.TextXAlignment.Left
+idBox.ZIndex=92
+idBox.Parent=menu
+
+local idCorner=Instance.new("UICorner")
+idCorner.CornerRadius=UDim.new(0,7)
+idCorner.Parent=idBox
+
+local idPadding=Instance.new("UIPadding")
+idPadding.PaddingLeft=UDim.new(0,10)
+idPadding.PaddingRight=UDim.new(0,10)
+idPadding.Parent=idBox
+
+local function makeButton(text,x,y,w,h)
+	local b=Instance.new("TextButton")
+	b.Size=UDim2.fromOffset(w,h)
+	b.Position=UDim2.fromOffset(x,y)
+	b.BackgroundColor3=Color3.fromRGB(23,23,23)
+	b.BorderSizePixel=0
+	b.Text=text
+	b.TextColor3=Color3.new(1,1,1)
+	b.TextSize=12
+	b.Font=Enum.Font.GothamMedium
+	b.AutoButtonColor=false
+	b.ZIndex=92
+	b.Parent=menu
+
+	local c=Instance.new("UICorner")
+	c.CornerRadius=UDim.new(0,7)
+	c.Parent=b
+
+	return b
+end
+
+local play=makeButton("PLAY",12,100,143,38)
+local stop=makeButton("STOP",165,100,143,38)
+local reset=makeButton("RESET",12,146,92,36)
+local minus=makeButton("−",112,146,48,36)
+local plus=makeButton("+",166,146,48,36)
+local loopButton=makeButton("LOOP: OFF",216,146,92,36)
+
+local volumeLabel=Instance.new("TextLabel")
+volumeLabel.Size=UDim2.new(1,-24,0,25)
+volumeLabel.Position=UDim2.fromOffset(12,190)
+volumeLabel.BackgroundTransparency=1
+volumeLabel.Text="VOLUME"
+volumeLabel.TextColor3=Color3.fromRGB(200,200,200)
+volumeLabel.TextSize=12
+volumeLabel.Font=Enum.Font.GothamMedium
+volumeLabel.TextXAlignment=Enum.TextXAlignment.Left
+volumeLabel.ZIndex=92
+volumeLabel.Parent=menu
+
+local volumeBox=Instance.new("TextBox")
+volumeBox.Size=UDim2.fromOffset(90,32)
+volumeBox.Position=UDim2.fromOffset(218,186)
+volumeBox.BackgroundColor3=Color3.fromRGB(22,22,22)
+volumeBox.BorderSizePixel=0
+volumeBox.Text="100"
+volumeBox.TextColor3=Color3.new(1,1,1)
+volumeBox.TextSize=12
+volumeBox.Font=Enum.Font.GothamMedium
+volumeBox.ClearTextOnFocus=false
+volumeBox.ZIndex=93
+volumeBox.Parent=menu
+
+local volumeCorner=Instance.new("UICorner")
+volumeCorner.CornerRadius=UDim.new(0,7)
+volumeCorner.Parent=volumeBox
+
+local volumeSuffix=Instance.new("TextLabel")
+volumeSuffix.Size=UDim2.fromOffset(20,32)
+volumeSuffix.Position=UDim2.fromOffset(280,186)
+volumeSuffix.BackgroundTransparency=1
+volumeSuffix.Text="%"
+volumeSuffix.TextColor3=Color3.fromRGB(150,150,150)
+volumeSuffix.TextSize=12
+volumeSuffix.Font=Enum.Font.GothamMedium
+volumeSuffix.ZIndex=94
+volumeSuffix.Parent=menu
+
+local bar=Instance.new("Frame")
+bar.Size=UDim2.new(1,-24,0,10)
+bar.Position=UDim2.fromOffset(12,225)
+bar.BackgroundColor3=Color3.fromRGB(38,38,38)
+bar.BorderSizePixel=0
+bar.ZIndex=92
+bar.Parent=menu
+
+local barCorner=Instance.new("UICorner")
+barCorner.CornerRadius=UDim.new(1,0)
+barCorner.Parent=bar
+
+local fill=Instance.new("Frame")
+fill.Size=UDim2.new(1,0,1,0)
+fill.BackgroundColor3=Color3.fromRGB(235,235,235)
+fill.BorderSizePixel=0
+fill.ZIndex=93
+fill.Parent=bar
+
+local fillCorner=Instance.new("UICorner")
+fillCorner.CornerRadius=UDim.new(1,0)
+fillCorner.Parent=fill
+
+local knob=Instance.new("Frame")
+knob.Size=UDim2.fromOffset(16,16)
+knob.Position=UDim2.new(1,-8,.5,-8)
+knob.BackgroundColor3=Color3.fromRGB(255,255,255)
+knob.BorderSizePixel=0
+knob.ZIndex=94
+knob.Parent=bar
+
+local knobCorner=Instance.new("UICorner")
+knobCorner.CornerRadius=UDim.new(1,0)
+knobCorner.Parent=knob
+
+local status=Instance.new("TextLabel")
+status.Size=UDim2.new(1,-24,0,32)
+status.Position=UDim2.fromOffset(12,247)
+status.BackgroundTransparency=1
+status.Text="STATUS: READY"
+status.TextColor3=Color3.fromRGB(145,145,145)
+status.TextSize=11
+status.Font=Enum.Font.Gotham
+status.TextXAlignment=Enum.TextXAlignment.Left
+status.ZIndex=92
+status.Parent=menu
+
+local volume=1
+local looping=false
+
+local function updateVolume(percent)
+	local p=math.clamp(tonumber(percent) or 0,0,300)
+	volume=p/100
+	sound.Volume=volume
+	volumeBox.Text=tostring(math.floor(p+0.5))
+	fill.Size=UDim2.new(volume/3,0,1,0)
+	knob.Position=UDim2.new(volume/3,-8,.5,-8)
+	volumeLabel.Text="VOLUME  "..math.floor(p+0.5).."%"
+end
+
+local function getId()
+	local id=idBox.Text:match("%d+")
+	if not id then
+		return nil
+	end
+	if #id>15 then
+		return nil
+	end
+	return id
+end
+
+local function setStatus(t)
+	status.Text="STATUS: "..t
+end
+
+local function setVolumeFromBox()
+	local cleaned=volumeBox.Text:gsub("[^%d.]","")
+	local number=tonumber(cleaned)
+	if not number then
+		updateVolume(volume*100)
+		return
+	end
+	updateVolume(math.clamp(number,0,300))
+end
+
+volumeBox.FocusLost:Connect(function()
+	setVolumeFromBox()
+end)
+
+play.Activated:Connect(function()
+	local id=getId()
+
+	if not id then
+		setStatus("INVALID SOUND ID")
+		return
+	end
+
+	sound:Stop()
+	sound.SoundId="rbxassetid://"..id
+	sound.TimePosition=0
+	sound.Volume=volume
+	sound.Looped=looping
+	sound:Play()
+
+	setStatus("PLAYING • "..id)
+end)
+
+stop.Activated:Connect(function()
+	sound:Stop()
+	setStatus("STOPPED")
+end)
+
+reset.Activated:Connect(function()
+	if sound.SoundId~="" then
+		sound.TimePosition=0
+		setStatus("RESET")
+	end
+end)
+
+minus.Activated:Connect(function()
+	updateVolume(volume*100-10)
+end)
+
+plus.Activated:Connect(function()
+	updateVolume(volume*100+10)
+end)
+
+loopButton.Activated:Connect(function()
+	looping=not looping
+	sound.Looped=looping
+	loopButton.Text=looping and "LOOP: ON" or "LOOP: OFF"
+	setStatus(looping and "LOOP ENABLED" or "LOOP DISABLED")
+end)
+
+local function makeDraggable(object,onClick)
+	local dragging=false
+	local moved=false
+	local dragStart
+	local startPos
+	local dragInput
+
+	object.InputBegan:Connect(function(input)
+		if input.UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then
+			return
+		end
+
+		dragging=true
+		moved=false
+		dragStart=input.Position
+		startPos=object.Position
+
+		if input.UserInputType==Enum.UserInputType.Touch then
+			dragInput=input
+		end
+	end)
+
+	object.InputChanged:Connect(function(input)
+		if input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch then
+			dragInput=input
+		end
+	end)
+
+	UIS.InputChanged:Connect(function(input)
+		if not dragging or input~=dragInput then
+			return
+		end
+
+		local delta=input.Position-dragStart
+
+		if math.abs(delta.X)+math.abs(delta.Y)>5 then
+			moved=true
+		end
+
+		object.Position=UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset+delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset+delta.Y
+		)
+	end)
+
+	UIS.InputEnded:Connect(function(input)
+		if input.UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then
+			return
+		end
+
+		if dragging and not moved and onClick then
+			onClick()
+		end
+
+		dragging=false
+		dragInput=nil
+	end)
+end
+
+makeDraggable(logo,function()
+	menu.Visible=not menu.Visible
+
+	if menu.Visible then
+		menu.Size=UDim2.fromOffset(300,295)
+		menu.BackgroundTransparency=1
+
+		TweenService:Create(
+			menu,
+			TweenInfo.new(.16,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),
+			{
+				Size=UDim2.fromOffset(320,315),
+				BackgroundTransparency=0
+			}
+		):Play()
+	else
+		menu.Visible=false
+	end
+end)
+
+makeDraggable(titleBar)
+
+close.Activated:Connect(function()
+	menu.Visible=false
+end)
+
+local volumeDragging=false
+
+local function updateFromPointer(input)
+	local x=math.clamp(
+		(input.Position.X-bar.AbsolutePosition.X)/bar.AbsoluteSize.X,
+		0,1
+	)
+	updateVolume(x*300)
+end
+
+bar.InputBegan:Connect(function(input)
+	if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
+		volumeDragging=true
+		updateFromPointer(input)
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if not volumeDragging then
+		return
+	end
+
+	if input.UserInputType==Enum.UserInputType.MouseMovement or input.UserInputType==Enum.UserInputType.Touch then
+		updateFromPointer(input)
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType==Enum.UserInputType.MouseButton1 or input.UserInputType==Enum.UserInputType.Touch then
+		volumeDragging=false
+	end
+end)
+
+sound.Ended:Connect(function()
+	if not sound.Looped then
+		setStatus("FINISHED")
+	end
+end)
+
+updateVolume(100)
